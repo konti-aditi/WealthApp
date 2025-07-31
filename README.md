@@ -1,4 +1,4 @@
-# WealthMap Full-Stack Application
+# WealthApp Full-Stack Application
 
  
 [Live Site](https://wealth-map.netlify.app/)  
