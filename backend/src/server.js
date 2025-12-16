@@ -7,6 +7,7 @@ var cors = require("cors");
 var path = require("path");
 var db = require("./model");
 var routes = require("./routes");
+var { startCleanupJob } = require("./jobs/cleanupTempFiles");
 var app = express();
 var PORT = process.env.PORT || 8080;
 var DB_URL = process.env.DB_HOST ||
@@ -29,9 +30,15 @@ db.mongoose
 app.get("/ping", function (req, res) {
     res.json({ greeting: "Server Is In Good Health!" });
 });
-app.listen(PORT, function () {
+var server = app.listen(PORT, function () {
     console.log("\uD83D\uDE80 server started at http://localhost:".concat(PORT));
+    // Start scheduled cleanup job for temp files
+    startCleanupJob();
 });
+
+// Set timeout to 10 minutes for long-running operations like video processing
+server.timeout = 600000; // 10 minutes in milliseconds
+server.keepAliveTimeout = 610000; // Slightly higher than timeout
 // const Role = db.Role;
 app.use(bodyParser.json());
 app.use(cors());
