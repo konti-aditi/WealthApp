@@ -131,6 +131,15 @@ router.post("/rotate-video", videoUpload.single("video"), async (req, res) => {
   req.setTimeout(600000);
   res.setTimeout(600000);
 
+  // Prevent socket from being destroyed
+  if (req.socket) {
+    req.socket.setTimeout(600000);
+  }
+
+  // Set keep-alive headers
+  res.setHeader('Connection', 'keep-alive');
+  res.setHeader('Keep-Alive', 'timeout=600');
+
   let inputPath = null;
   let outputPath = null;
   let filesToCleanup = []; // Track all files to cleanup
@@ -247,12 +256,17 @@ router.post("/rotate-video", videoUpload.single("video"), async (req, res) => {
     console.log("Video uploaded to GCS:", gcsFilename);
 
     // Return success response immediately
-    res.status(200).json({
+    const responseData = {
       message: "Video rotated successfully",
       status: true,
       link: gcsFilename,
       publicUrl: `https://storage.googleapis.com/calcium-backup-481015-r3.appspot.com/${gcsFilename}`,
-    });
+    };
+
+    res.status(200);
+    res.setHeader('Content-Type', 'application/json');
+    res.write(JSON.stringify(responseData));
+    res.end();
 
     // Clean up temporary files in background (after response is sent)
     setImmediate(async () => {
@@ -282,11 +296,14 @@ router.post("/rotate-video", videoUpload.single("video"), async (req, res) => {
       }
     }
 
-    res.status(500).json({
-      message: "Error rotating video",
-      status: false,
-      error: err.message,
-    });
+    // Only send error response if headers haven't been sent
+    if (!res.headersSent) {
+      res.status(500).json({
+        message: "Error rotating video",
+        status: false,
+        error: err.message,
+      });
+    }
   }
 });
 
