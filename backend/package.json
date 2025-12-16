@@ -4,15 +4,17 @@
   "main": "dist/server.js",
   "license": "MIT",
   "scripts": {
-    "start": "nodemon src/server.js",
-    "dev:server": "nodemon ./src/server.js",
+    "start": "node --max-old-space-size=4096 src/server.js",
+    "dev:server": "nodemon --max-old-space-size=4096 ./src/server.js",
     "format": "prettier --write \"app/**/*.{js,jsx,json,md}\"",
     "lint": "eslint index.js App.js app --fix --ext .js --max-warnings 0 && yarn format",
-    "start:server": "pm2 start src/server.js --name my-node-app",
+    "start:server": "pm2 start src/server.js --name my-node-app --node-args=\"--max-old-space-size=4096\"",
     "stop": "pm2 stop my-node-app",
     "restart": "pm2 restart my-node-app",
     "logs": "pm2 logs my-node-app",
-    "run-app": "node src/server.js"
+    "run-app": "node --max-old-space-size=4096 src/server.js",
+    "cleanup-temp": "node cleanup-temp.js",
+    "cleanup-temp:all": "node cleanup-temp.js --all"
   },
   "devDependencies": {
     "eslint": "^8.47.0",
@@ -27,6 +29,7 @@
     "crypto": "^1.0.1",
     "dotenv": "^16.4.7",
     "express": "^4.18.2",
+    "ffmpeg": "^0.0.4",
     "follow-redirects": "^1.15.3",
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
