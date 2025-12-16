@@ -40,8 +40,11 @@ var server = app.listen(PORT, function () {
 server.timeout = 600000; // 10 minutes in milliseconds
 server.keepAliveTimeout = 610000; // Slightly higher than timeout
 // const Role = db.Role;
-app.use(bodyParser.json());
-app.use(cors());
+app.use(bodyParser.json({ limit: '100mb' }));
+app.use(bodyParser.urlencoded({ limit: '100mb', extended: true }));
+app.use(cors({
+    maxAge: 86400 // 24 hours
+}));
 app.use(express.urlencoded({ extended: true }));
 app.use("/", routes);
 // app.use((req, res) => {
